@@ -11,7 +11,7 @@ Item {
     Flickable {
         id: flickable
         width: 250;height: window.height
-        contentWidth: boxutama.width;contentHeight: boxutama.height 
+        contentWidth: boxutama.width;contentHeight: boxutama.height
         GroupBox {
             id: boxutama
             title: ""

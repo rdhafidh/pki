@@ -14,7 +14,7 @@ Item {
 
         GroupBox {
             title: ""
-			id:boxutama
+            id: boxutama
             GridLayout {
                 columns: 3
                 width: parent.width
@@ -151,9 +151,9 @@ Item {
                 }
             }
         }
-		ScrollBar.vertical: ScrollBar {}
-		ScrollBar.horizontal: ScrollBar {}
-	}
+        ScrollBar.vertical: ScrollBar {}
+        ScrollBar.horizontal: ScrollBar {}
+    }
 
     function setPrivateKeyLabel(file) {
         in_priv.setLabel(file)

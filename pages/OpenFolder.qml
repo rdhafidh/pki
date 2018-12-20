@@ -27,11 +27,18 @@ Item {
             }
             Row {
                 spacing: 20
-                Label {
-                    id: folderpath
-                    text: folderModel.path()
-                    width: 150
-                    elide: Label.ElideRight
+                Image {
+                    id: kotak
+                    y: -10
+                    source: "qrc:/images/ic_subdirectory_arrow_left_black_48dp.png"
+                    sourceSize.width: 30
+                    sourceSize.height: 30
+                    MouseArea {
+                        anchors.fill: kotak
+                        onClicked: {
+                            docdFolder("..")
+                        }
+                    }
                 }
                 Image {
                     y: -10
@@ -46,18 +53,11 @@ Item {
                         }
                     }
                 }
-                Image {
-                    id: kotak
-                    y: -10
-                    source: "qrc:/images/ic_subdirectory_arrow_left_black_48dp.png"
-                    sourceSize.width: 30
-                    sourceSize.height: 30
-                    MouseArea {
-                        anchors.fill: kotak
-                        onClicked: {
-                            docdFolder("..")
-                        }
-                    }
+                Label {
+                    id: folderpath
+                    text: folderModel.path()
+                    width: 150
+                    elide: Label.ElideLeft
                 }
             }
             ListView {
