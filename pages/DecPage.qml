@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.12
 ScrollablePage {
     id: page
     property bool openpriv: false
+	
     SwipeView {
         id: swipe
         currentIndex: 0
@@ -61,5 +62,8 @@ ScrollablePage {
             }
         }
 
+		Component.onCompleted:{
+			pki.resetEnkripsiBasedSetting();
+		}
     }
 }

@@ -3,7 +3,7 @@ import QtQuick.Controls 2.8
 import QtQuick.Layouts 1.12
 
 ScrollablePage {
-    id: page
+    id: page 
     SwipeView {
         id: swipe
         currentIndex: 0
@@ -40,5 +40,8 @@ ScrollablePage {
             } 
         }
 
+		Component.onCompleted:{
+			pki.resetEnkripsiBasedSetting();
+		}
     }
 }

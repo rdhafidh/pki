@@ -18,9 +18,9 @@ public:
                              const QString &alice_priv_file);
     Q_INVOKABLE bool decrypt(const QByteArray &ciphertext, const QString &alice_pub_file,
                         const QString &bob_priv_file);
+    Q_INVOKABLE void resetEnkripsiBasedSetting();
     Q_INVOKABLE void copyClipboard(const QString &text);
-    Q_INVOKABLE QString pasteClipboard();
-    
+    Q_INVOKABLE QString pasteClipboard(); 
 signals:
     void failWritePrivFile(const QString &msg);
     void failWritePubFile(const QString &msg);
@@ -34,7 +34,7 @@ signals:
 public slots:
     
 private:
-    std::unique_ptr<PKISodium> pki;
+    std::unique_ptr<PKI> pki;
 };
 
 #endif // PKIQML_H

@@ -1,78 +1,13 @@
 #include "pkisodium.h"
 #include <sodium.h>
+#include <util.h>
 #include <z85.h>
 #include <QFile>
+#include <cstdio>
 #include <fstream>
-#include <sstream>
 #include <iostream>
 #include <memory>
-#include <cstdio>
-
-std::string PKISodium::encode85(const std::string &buffer) {
-  std::string ret;
-  size_t len=Z85_encode_with_padding_bound(buffer.size());
-  if(len==0) return "";
-  ret.resize(len);
-  len =
-      Z85_encode_with_padding(buffer.c_str(), ret.data(), buffer.size());
-  if (len == 0) {
-    std::cout << "\nencode problem len 0\n";
-    ret = "";
-    return ret;
-  }
-  return ret;
-}
-std::string PKISodium::decode85(const std::string &buffer) {
-  std::string ret;
-  size_t len=Z85_decode_with_padding_bound(buffer.c_str(), buffer.size());
-  if(len==0){
-	std::cout<<"\nZ85_decode_with_padding_bound: "<<len<<"\n";
-	return "";
-  }
-  
-  ret.resize(len); 
-  len =
-      Z85_decode_with_padding(buffer.c_str(), ret.data(), buffer.size());
-  if (len == 0) {
-    std::cout << "\ndecode problem len 0\n";
-    ret = "";
-    return ret;
-  }
-  return ret;
-}
-
-bool PKISodium::saveFile(const QString &name, const std::string &buffer) {
-  QFile fn(name);
-  if (!fn.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-    return false;
-  }
-  fn.write(buffer.c_str(), buffer.size());
-  fn.close(); 
- /*  std::ofstream ofs(name.toStdString(),std::ios::trunc);
-  if(!ofs.is_open()){
-	  return false;
-  }
-  ofs<<buffer; */
-  return true;
-}
-
-bool PKISodium::readFile(const QString &name, std::string &buffer) {
-  QFile fn(name);
-  if (!fn.open(QIODevice::ReadOnly)) {
-    return false;
-  }
-  buffer.clear();
-  buffer=fn.readAll ().toStdString ();
-  fn.close();
-  
-  /* std::ifstream fs(name.toStdString());
-  if(!fs.is_open()){
-	  return false;
-  } 
-  buffer.assign((std::istreambuf_iterator<char>(fs)),
-                 std::istreambuf_iterator<char>()); */
-  return true;
-}
+#include <sstream>
 
 KeyGenPair PKISodium::doKeyGen() {
   KeyGenPair keypair;
@@ -87,60 +22,58 @@ KeyGenPair PKISodium::doKeyGen() {
   return keypair;
 }
 
-
-bool PKISodium::keygenTests()
-{
+bool PKISodium::keygenTests() {
   std::unique_ptr<PKISodium> sod = std::make_unique<PKISodium>();
-  auto ret=sod->doKeyGen();
-  
+  auto ret = sod->doKeyGen();
+
   remove("alice.priv");
   remove("alice.pub");
   remove("bob.pub");
   remove("bob.priv");
-  if(!saveFile("alice.priv",ret.alice_priv)){
-	return false;
+  if (!Util::saveFile("alice.priv", ret.alice_priv)) {
+    return false;
   }
-  if(!saveFile("alice.pub",ret.alice_pub)){
-	return false;
+  if (!Util::saveFile("alice.pub", ret.alice_pub)) {
+    return false;
   }
-  if(!saveFile("bob.pub",ret.bob_pub)){
-	return false;
+  if (!Util::saveFile("bob.pub", ret.bob_pub)) {
+    return false;
   }
-  if(!saveFile("bob.priv",ret.bob_priv)){
-	return false;
+  if (!Util::saveFile("bob.priv", ret.bob_priv)) {
+    return false;
   }
-  
-  std::string o_a_priv="";
-  if(!readFile("alice.priv",o_a_priv)){
-	  return false;
+
+  std::string o_a_priv = "";
+  if (!Util::readFile("alice.priv", o_a_priv)) {
+    return false;
   }
-  if(o_a_priv !=ret.alice_priv){
-	  std::cout<<"\n read test alice priv galat\n"; 
-	  return false;
+  if (o_a_priv != ret.alice_priv) {
+    std::cout << "\n read test alice priv galat\n";
+    return false;
   }
-  std::string o_a_pub="";
-  if(!readFile("alice.pub",o_a_pub)){
-	  return false;
+  std::string o_a_pub = "";
+  if (!Util::readFile("alice.pub", o_a_pub)) {
+    return false;
   }
-  if(o_a_pub !=ret.alice_pub){ 
-	  std::cout<<"\n read test alice pub galat\n";
-	  return false;
+  if (o_a_pub != ret.alice_pub) {
+    std::cout << "\n read test alice pub galat\n";
+    return false;
   }
-  std::string o_b_priv="";
-  if(!readFile("bob.priv",o_b_priv)){
-	  return false;
-  } 
-  if(o_b_priv !=ret.bob_priv){
-	  std::cout<<"\n read test bob priv galat\n"; 
-	  return false;
+  std::string o_b_priv = "";
+  if (!Util::readFile("bob.priv", o_b_priv)) {
+    return false;
   }
-  std::string o_b_pub="";
-  if(!readFile("bob.pub",o_b_pub)){
-	  return false;
+  if (o_b_priv != ret.bob_priv) {
+    std::cout << "\n read test bob priv galat\n";
+    return false;
   }
-  if(o_b_pub !=ret.bob_pub){
-	  std::cout<<"\n read test bob pub galat\n";
-	  return false;
+  std::string o_b_pub = "";
+  if (!Util::readFile("bob.pub", o_b_pub)) {
+    return false;
+  }
+  if (o_b_pub != ret.bob_pub) {
+    std::cout << "\n read test bob pub galat\n";
+    return false;
   }
   return true;
 }
@@ -152,7 +85,7 @@ bool PKISodium::encrypt(std::string &ciphertext, const std::string &msg,
   ciphertext.resize(crypto_box_MACBYTES + msg.size());
   std::string nonce;
   nonce.resize(crypto_box_NONCEBYTES);
-  randombytes_buf((void *)nonce.data(), nonce.size()); 
+  randombytes_buf((void *)nonce.data(), nonce.size());
   if (crypto_box_easy((unsigned char *)ciphertext.data(),
                       (const unsigned char *)msg.c_str(),
                       (unsigned long long)msg.size(),
@@ -175,8 +108,8 @@ bool PKISodium::decrypt(std::string &decrypted, const std::string &ciphertext,
       ciphertext.substr(0, ciphertext.size() - crypto_box_NONCEBYTES);
   std::string n = ciphertext.substr(ciphertext.size() - crypto_box_NONCEBYTES,
                                     ciphertext.size());
-  decrypted.clear(); 
-  decrypted.resize(c.size() - crypto_box_MACBYTES); 
+  decrypted.clear();
+  decrypted.resize(c.size() - crypto_box_MACBYTES);
   if (crypto_box_open_easy(
           (unsigned char *)decrypted.data(), (const unsigned char *)c.data(),
           (unsigned long long)c.size(), (const unsigned char *)n.c_str(),
@@ -188,39 +121,39 @@ bool PKISodium::decrypt(std::string &decrypted, const std::string &ciphertext,
 }
 
 bool PKISodium::encryptqt(const QByteArray &msg, const QString &bob_pub_file,
-                        const QString &alice_priv_file, QByteArray &out) {
+                          const QString &alice_priv_file, QByteArray &out) {
   std::string pub = "";
   std::string priv = "";
-  if (!readFile(bob_pub_file, pub) || pub.empty()) {
+  if (!Util::readFile(bob_pub_file, pub) || pub.empty()) {
     return false;
   }
-  if (!readFile(alice_priv_file, priv) || priv.empty()) {
+  if (!Util::readFile(alice_priv_file, priv) || priv.empty()) {
     return false;
   }
-  std::string ct = ""; 
+  std::string ct = "";
   if (!encrypt(ct, msg.toStdString(), pub, priv)) {
     return false;
-  } 
-  out = QByteArray::fromStdString(PKISodium::encode85(ct));
+  }
+  out = QByteArray::fromStdString(Util::encode85(ct));
   return true;
 }
 
 bool PKISodium::decryptqt(const QByteArray &ciphertext,
-                        const QString &alice_pub_file,
-                        const QString &bob_priv_file, QByteArray &out) {
+                          const QString &alice_pub_file,
+                          const QString &bob_priv_file, QByteArray &out) {
   std::string pub = "";
   std::string priv = "";
-  if (!readFile(alice_pub_file, pub) || pub.empty()) {
+  if (!Util::readFile(alice_pub_file, pub) || pub.empty()) {
     return false;
   }
-  if (!readFile(bob_priv_file, priv) || priv.empty()) {
+  if (!Util::readFile(bob_priv_file, priv) || priv.empty()) {
     return false;
   }
   std::string dt = "";
-  std::string decode = decode85(ciphertext.toStdString());
+  std::string decode = Util::decode85(ciphertext.toStdString());
   if (decode.size() == 0) {
     return false;
-  }  
+  }
   if (!decrypt(dt, decode, pub, priv)) {
     std::cout << "\ndec failed\n";
     return false;
@@ -229,22 +162,21 @@ bool PKISodium::decryptqt(const QByteArray &ciphertext,
   return true;
 }
 
-bool PKISodium::genPairKey(const QString &folder)
-{
-    KeyGenPair pair = doKeyGen();
-    if (!saveFile(folder + "/" + "alice.priv", pair.alice_priv)) { 
-      return false;
-    }
-    if (!saveFile(folder + "/" + "alice.pub", pair.alice_pub)) { 
-      return false;
-    }
-    if (!saveFile(folder + "/" + "bob.priv", pair.bob_priv)) { 
-      return false;
-    }
-    if (!saveFile(folder + "/" + "bob.pub", pair.bob_pub)) { 
-      return false;
-    } 
-    return true;
+bool PKISodium::genPairKey(const QString &folder) {
+  KeyGenPair pair = doKeyGen();
+  if (!Util::saveFile(folder + "/" + "alice.priv", pair.alice_priv)) {
+    return false;
+  }
+  if (!Util::saveFile(folder + "/" + "alice.pub", pair.alice_pub)) {
+    return false;
+  }
+  if (!Util::saveFile(folder + "/" + "bob.priv", pair.bob_priv)) {
+    return false;
+  }
+  if (!Util::saveFile(folder + "/" + "bob.pub", pair.bob_pub)) {
+    return false;
+  }
+  return true;
 }
 
 std::string PKISodium::provider() const { return "sodium"; }

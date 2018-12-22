@@ -1,11 +1,12 @@
 QT += quick
-CONFIG += c++17
+CONFIG += c++17 
 
 HEADERS += filesystemabs.h \
     filemodeldata.h \
     pki.h \
     pkisodium.h \
-    pkiqml.h
+    pkiqml.h \
+    util.h boringsslpki.h settinghandler.h
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -25,14 +26,15 @@ android{
 SODIUMDIR= D:/masteraplikasi/transferh11nov/sodium/android-armv7-a 
 }
 INCLUDEPATH += $$SODIUMDIR/include 
-LIBS += $$SODIUMDIR/lib/libsodium.a
+LIBS += $$SODIUMDIR/lib/libsodium.a $$SODIUMDIR/lib/libcrypto.a
  
 SOURCES += \
         main.cpp  filesystemabs.cpp \
     filemodeldata.cpp \
     pki.cpp \
     pkisodium.cpp \
-    pkiqml.cpp z85.c
+    pkiqml.cpp z85.c \
+    util.cpp boringsslpki.cpp settinghandler.cpp
 
 RESOURCES += main.qml \
                  $$files(images/*.png) \

@@ -60,6 +60,8 @@ ScrollablePage {
                 }
             }
         }
-
+		Component.onCompleted:{
+			pki.resetEnkripsiBasedSetting();
+		}
     }
 }
