@@ -21,7 +21,7 @@ Aead Cihpher dari [boringSSL](https://github.com/rdhafidh/pki/blob/master/boring
 ![](https://raw.githubusercontent.com/rdhafidh/pki/master/doc/folder.jpeg)
 
 
-#### [Windows installer](https://github.com/rdhafidh/pki/releases/download/1.0/InstallerDemoPKISetup_ekstrak_dulu.zip)  Min Windows 7
+#### [Windows installer](https://github.com/rdhafidh/pki/releases/download/1.0.3/InstallerDemoPKISetup.zip)  Min Windows 7
 
 
-#### [Android](https://github.com/rdhafidh/pki/releases/download/1.0/android_apk_ekstrak_dulu.zip) Min jelly bean arm 32bit
+#### [Android](https://github.com/rdhafidh/pki/releases/download/1.0.3/android-debug.zip) Min jelly bean arm 32bit
