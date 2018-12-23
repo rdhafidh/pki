@@ -6,30 +6,33 @@ Item {
     width: parent.width
     height: parent.height
     signal pilihFolder(string path)
-    signal cancelPilihFolder()
+    signal cancelPilihFolder
     signal pilihFile(string file)
     property alias folderurl: folderpath.text
     property bool isModeFolder: true
     Flickable {
-		x:20
+        x: 20
         id: flickable
-        width: 250;height: window.height
-        contentWidth: layoutfolder.width;contentHeight: layoutfolder.height
+        width: 250
+        height: window.height
+        contentWidth: layoutfolder.width
+        contentHeight: layoutfolder.height
 
         ColumnLayout {
-			id: layoutfolder
+            id: layoutfolder
             width: window.width
             height: window.height
+            spacing: 10
             Label {
-                id: headlist
-                font.pixelSize: 15
-                text: "Folder List"
+                id: folderpath
+                text: folderModel.path()
+                width: list.width
+                elide: Label.ElideLeft
             }
             Row {
                 spacing: 20
                 Image {
                     id: kotak
-                    y: -10
                     source: "qrc:/images/ic_subdirectory_arrow_left_black_48dp.png"
                     sourceSize.width: 30
                     sourceSize.height: 30
@@ -41,7 +44,6 @@ Item {
                     }
                 }
                 Image {
-                    y: -10
                     id: btnaction
                     sourceSize.width: 30
                     sourceSize.height: 30
@@ -53,12 +55,15 @@ Item {
                         }
                     }
                 }
-                Label {
-                    id: folderpath
-                    text: folderModel.path()
-                    width: 150
-                    elide: Label.ElideLeft
+                Rectangle {
+                    height: 30
+                    width: 30
                 }
+            }
+            Label {
+                id: headlist
+                font.pixelSize: 15
+                text: "Folder List"
             }
             ListView {
                 id: list
@@ -71,11 +76,13 @@ Item {
                 highlightRangeMode: ListView.NoHighlightRange
                 snapMode: ListView.SnapToItem
             }
-        } 
-		
-		ScrollBar.vertical: ScrollBar {}
-		ScrollBar.horizontal: ScrollBar {}
-	}
+        }
+
+        ScrollBar.vertical: ScrollBar {
+        }
+        ScrollBar.horizontal: ScrollBar {
+        }
+    }
 
     Component {
         id: folderDelegate
@@ -122,7 +129,7 @@ Item {
     }
 
     function setTitleOpenFolder(msg) {
-        headlist.text = msg;
+        headlist.text = msg
     }
 
     Dialog {
@@ -131,13 +138,21 @@ Item {
         focus: true
         title: "Aksi Folder"
         x: (window.width - width) / 2
-        y: window.height / 6
+        y: window.height / 13
         width: Math.min(window.width, window.height) / 3 * 2
         contentHeight: aboutColumn.height
 
         Column {
             id: aboutColumn
             spacing: 20
+            Button {
+                width: aksiFolder.availableWidth
+                text: "Pilih Drive"
+                onClicked: { 
+                    aksiFolder.close()
+                    aksiDrive.open()
+                }
+            }
             Button {
                 width: aksiFolder.availableWidth
                 text: "Refresh folder"
@@ -169,9 +184,49 @@ Item {
                     cancelPilihFolder()
                 }
             }
-
         }
     }
+
+    Dialog {
+        id: aksiDrive
+        modal: true
+        focus: true
+        title: "Pilih Drive"
+        x: (window.width - width) / 2
+        y: window.height / 13
+        width: Math.min(window.width, window.height) / 3 * 2
+        contentHeight: driveColumn.height
+        ColumnLayout {
+            id: driveColumn
+            spacing: 5
+            ComboBox {
+                id: driveBox
+                width: aksiDrive.availableWidth
+                model: folderHandler.getMountRootPaths()
+            }
+            RowLayout {
+                spacing: 5
+                Button {
+                    text: "buka"
+                    Layout.fillWidth: true
+                    onClicked: {
+                        if(folderModel.setPath(driveBox.currentText)){
+                            folderpath.text = folderModel.path()
+                        }
+                        aksiDrive.close()
+                    }
+                }
+                Button {
+                    Layout.fillWidth: true
+                    text: "cancel"
+                    onClicked: {
+                        aksiDrive.close()
+                    }
+                }
+            }
+        }
+    }
+
     Dialog {
         id: mkdirDialog
 
@@ -234,10 +289,9 @@ Item {
         }
 
         function setMsgLabel(labelmsg) {
-            labelNotif.text = labelmsg;
+            labelNotif.text = labelmsg
         }
     }
-
 
     function docdFolder(path) {
         if (folderModel.cd(path)) {
@@ -247,9 +301,9 @@ Item {
 
     function setKeyFilter(mode) {
         if (mode) {
-            folderModel.setNameFilterKey();
+            folderModel.setNameFilterKey()
         } else {
-            folderModel.clearNameFilter();
+            folderModel.clearNameFilter()
         }
     }
 
@@ -258,7 +312,6 @@ Item {
     }
 
     function setModeFolder(mode) {
-        isModeFolder = mode;
+        isModeFolder = mode
     }
-
 }

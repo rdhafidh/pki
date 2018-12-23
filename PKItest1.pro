@@ -1,12 +1,13 @@
 QT += quick
-CONFIG += c++17 
+CONFIG += c++17
 
 HEADERS += filesystemabs.h \
     filemodeldata.h \
     pki.h \
     pkisodium.h \
     pkiqml.h \
-    util.h boringsslpki.h settinghandler.h
+    util.h boringsslpki.h settinghandler.h \
+    openfolderhandler.h mountstoragehandler.h
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -34,7 +35,9 @@ SOURCES += \
     pki.cpp \
     pkisodium.cpp \
     pkiqml.cpp z85.c \
-    util.cpp boringsslpki.cpp settinghandler.cpp
+    util.cpp boringsslpki.cpp settinghandler.cpp \
+    openfolderhandler.cpp  mountstoragehandler.cpp
+
 
 RESOURCES += main.qml \
                  $$files(images/*.png) \
@@ -55,5 +58,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \ 
-    filesystemabs.h qmlappengine.h filemodeldata.h pkiqml.h z85.h
+    filesystemabs.h qmlappengine.h filemodeldata.h pkiqml.h z85.h openfolderhandler.h
  

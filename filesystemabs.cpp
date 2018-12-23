@@ -1,4 +1,5 @@
 #include "filesystemabs.h"
+#include <mountstoragehandler.h>
 #include <QDateTime>
 #include <QDir>
 #include <QDirIterator>
@@ -40,7 +41,7 @@ ListFiles FileSystemAbs::getListDir() {
   ListFiles list;
   if (!isValidPath(path)) return list;
 
-  QDir dir(path); 
+  QDir dir(path);
   QFileInfoList mret = dir.entryInfoList(
       QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Readable,
       QDir::DirsFirst | QDir::Time);
@@ -62,15 +63,15 @@ ListFiles FileSystemAbs::getListDir() {
                              return true;
                            }
                            return false;
-                         })) { 
-          remove.push_back (idx);
+                         })) {
+          remove.push_back(idx);
         }
       }
       ++idx;
     }
-    for(size_t rm:remove){
-        list[rm]=nullptr;
-        list.erase (list.begin ()+rm);
+    for (size_t rm : remove) {
+      list[rm] = nullptr;
+      list.erase(list.begin() + rm);
     }
   }
 
@@ -122,13 +123,22 @@ void FileSystemAbs::makeClear() {
 }
 
 bool FileSystemAbs::cd(const QString &pth) {
-  if (!isValidPath(path)) return false;
-
-  QDir dir(path);
-  if (!dir.cd(pth)) {
+  if (!isValidPath(path)) {
     return false;
   }
-  path = dir.absolutePath();
+  QStringList roots = MountStorageHandler::getAllRootMountedFS();
+  if (std::any_of(
+          roots.begin(), roots.end(),
+          [this](const QString &rootdir) { return this->path == rootdir; }) &&
+      pth == "..") {
+    std::cout << "\nreached root dir can't simply cdUp again\n";
+    return false;
+  }
+  auto mpath = QDir::cleanPath(path + "/" + pth);
+  if (!isValidPath(mpath)) {
+    return false;
+  }
+  path = mpath;
   refresh();
   return true;
 }

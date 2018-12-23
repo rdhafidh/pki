@@ -17,7 +17,8 @@ Aead Cihpher dari [boringSSL](https://github.com/rdhafidh/pki/blob/master/boring
 ![](https://raw.githubusercontent.com/rdhafidh/pki/master/doc/pengaturan.png)
 
 ### Dialog Folder
-![](https://raw.githubusercontent.com/rdhafidh/pki/master/doc/folder.png)
+![](https://raw.githubusercontent.com/rdhafidh/pki/master/doc/dialog.jpeg)
+![](https://raw.githubusercontent.com/rdhafidh/pki/master/doc/folder.jpeg)
 
 
 #### [Windows installer](https://github.com/rdhafidh/pki/releases/download/1.0/InstallerDemoPKISetup_ekstrak_dulu.zip)  Min Windows 7
