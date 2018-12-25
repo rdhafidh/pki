@@ -14,6 +14,10 @@ public:
     static std::string encode85(const std::string &buffer) ;
     static std::string decode85(const std::string &buffer) ;
     
+    static bool logging(const QString &buffer);
+    static QByteArray readLog();
+    static bool resetLog();
+    
 };
 
 #endif // UTIL_H

@@ -6,6 +6,12 @@ Flickable {
     id: flickable
 	clip:true
     property alias text: textArea.text 
+    property alias readOnly: textArea.readOnly
+	function setReadOnly(mode){
+		textArea.readOnly=mode;
+	}
+    contentWidth: textArea.width
+    contentHeight: textArea.height
     TextArea.flickable: TextArea {
         id: textArea
         wrapMode: TextArea.Wrap

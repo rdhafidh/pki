@@ -14,11 +14,14 @@ Aead Cihpher dari [boringSSL](https://github.com/rdhafidh/pki/blob/master/boring
 ![](https://raw.githubusercontent.com/rdhafidh/pki/master/doc/dec.png)
 
 ### Pemilihan Backend Enkripsi/Dekripsi
-![](https://raw.githubusercontent.com/rdhafidh/pki/master/doc/pengaturan.png)
+![](https://raw.githubusercontent.com/rdhafidh/pki/master/doc/pengaturan.jpeg)
 
 ### Dialog Folder
 ![](https://raw.githubusercontent.com/rdhafidh/pki/master/doc/dialog.jpeg)
 ![](https://raw.githubusercontent.com/rdhafidh/pki/master/doc/folder.jpeg)
+
+### Switch Drive folder
+![](https://raw.githubusercontent.com/rdhafidh/pki/master/doc/drive.jpeg)  
 
 
 #### [Windows installer](https://github.com/rdhafidh/pki/releases/download/1.0.3/InstallerDemoPKISetup.zip)  Min Windows 7

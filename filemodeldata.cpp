@@ -1,7 +1,8 @@
 #include "filemodeldata.h"
+#include <mountstoragehandler.h>
+#include <util.h>
 #include <QDebug>
 #include <QFileInfo>
-#include <QStandardPaths>
 
 QHash<int, QByteArray> FileModelData::roleNames() const {
   QHash<int, QByteArray> roles;
@@ -24,19 +25,16 @@ QVariant FileModelData::data(const QModelIndex &index, int role) const {
 
   switch (role) {
     case ObjectRole:
-      var = (bool)FileSystemAbs::instance()->getFiles().at(index.row())->isdir;
+      var = (bool)FileSystemAbs::instance()->getFiles().at(index.row()).isdir;
       break;
     case NameRole:
-      var = 
-          FileSystemAbs::instance()->getFiles().at(index.row())->basename;
+      var = FileSystemAbs::instance()->getFiles().at(index.row()).basename;
       break;
     case SizeRole:
-      var =  
-          FileSystemAbs::instance()->getFiles().at(index.row())->size;
+      var = FileSystemAbs::instance()->getFiles().at(index.row()).size;
       break;
     case LastModifTimeRole:
-      var = 
-          FileSystemAbs::instance()->getFiles().at(index.row())->ltimef;
+      var = FileSystemAbs::instance()->getFiles().at(index.row()).ltimef;
       break;
     default:
       break;
@@ -58,37 +56,44 @@ bool FileModelData::cd(const QString &path) {
   return e;
 }
 
-void FileModelData::refresh() { 
-    beginResetModel();
-    FileSystemAbs::instance()->refresh(); 
-    endResetModel();
+void FileModelData::refresh() {
+  beginResetModel();
+  FileSystemAbs::instance()->refresh();
+  endResetModel();
 }
 
 void FileModelData::makeClear() { FileSystemAbs::instance()->makeClear(); }
 
-QString FileModelData::path() {
-  return FileSystemAbs::instance()->getPath();
-}
+QString FileModelData::path() { return FileSystemAbs::instance()->getPath(); }
 QString FileModelData::documentPath() {
-  QStringList dir =
-      QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+  QStringList dir;
+  auto mount = MountStorageHandler::getAllRootMountedFS();
+  for (const auto &m : mount) {
+    dir << m.second;
+  }
   if (dir.size() == 0) {
-    return "";
+    return ".";
   }
   return dir.at(0);
 }
 
-bool FileModelData::mkdir(const QString &fname)
-{
-    return FileSystemAbs::instance()->mkdir (fname);
+bool FileModelData::mkdir(const QString &fname) {
+  return FileSystemAbs::instance()->mkdir(fname);
 }
 
-void FileModelData::setNameFilterKey()
-{
-    FileSystemAbs::instance ()->setNameFilters (QStringList()<<".priv"<<".pub");
+void FileModelData::setNameFilterKey() {
+  FileSystemAbs::instance()->setNameFilters(QStringList() << ".priv"
+                                                          << ".pub");
 }
 
-void FileModelData::clearNameFilter()
-{
-    FileSystemAbs::instance ()->clearNameFilters ();
+void FileModelData::clearNameFilter() {
+  FileSystemAbs::instance()->clearNameFilters();
+}
+
+bool FileModelData::resetLog() { return Util::resetLog(); }
+
+QByteArray FileModelData::readLog() { return Util::readLog(); }
+
+bool FileModelData::log(const QString &msg) {
+  return Util::logging("qml: " + msg);
 }

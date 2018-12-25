@@ -1,27 +1,23 @@
 #include "filesystemabs.h"
 #include <mountstoragehandler.h>
+#include <util.h>
 #include <QDateTime>
+#include <QDebug>
 #include <QDir>
 #include <QDirIterator>
 #include <QFileInfo>
 #include <algorithm>
 #include <sstream>
-
-FileObj::~FileObj() {
-  //  std::cout <<"\n~FileObj()\n";
-}
-
-std::shared_ptr<FileObj> FileObj::makeFileObj(const QString &bname, qint64 size,
-                                              bool isdir, bool issym,
-                                              bool exists,
-                                              const QString &ltimef) {
-  std::shared_ptr<FileObj> obj = std::make_shared<FileObj>();
-  obj->basename = bname;
-  obj->isdir = isdir;
-  obj->exists = exists;
-  obj->issym = issym;
-  obj->size = computeSize(size);
-  obj->ltimef = ltimef;
+#include <utility>
+ 
+FileObj FileObj::makeFileObj(const QString &bname, qint64 size, bool isdir,
+                             bool issym, const QString &ltimef) {
+  FileObj obj;
+  obj.basename = bname;
+  obj.isdir = isdir;
+  obj.issym = issym;
+  obj.size = computeSize(size);
+  obj.ltimef = ltimef;
   return obj;
 }
 
@@ -40,40 +36,36 @@ QString FileObj::computeSize(const qint64 size) {
 ListFiles FileSystemAbs::getListDir() {
   ListFiles list;
   if (!isValidPath(path)) return list;
+  Util::logging(QObject::tr("%1 %2").arg(Q_FUNC_INFO).arg(__LINE__));
 
   QDir dir(path);
   QFileInfoList mret = dir.entryInfoList(
       QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Readable,
       QDir::DirsFirst | QDir::Time);
   for (QFileInfo file : mret) {
-    list.emplace_back(FileObj::makeFileObj(
-        file.fileName(), file.size(), file.isDir(), file.isSymLink(),
-        file.exists(), file.lastModified().toString("d/M/yyyy hh:m:s")));
-  }
-  mret.clear();
-
-  if (nameFilters.size() > 0) {
-    size_t idx = 0;
-    std::vector<size_t> remove;
-    for (auto mfile : list) {
-      if (mfile && !mfile->isdir) {
-        if (std::none_of(nameFilters.begin(), nameFilters.end(),
-                         [mfile](const QString &filter) {
-                           if (mfile && mfile->basename.endsWith(filter)) {
-                             return true;
-                           }
-                           return false;
-                         })) {
-          remove.push_back(idx);
-        }
+    if (nameFilters.size() > 0) {
+      if (file.isFile() &&
+          std::any_of(nameFilters.begin(), nameFilters.end(),
+                      [&file](const QString &filter) {
+                        return file.fileName().endsWith(filter);
+                      })) {
+        list.emplace_back(FileObj::makeFileObj(
+            file.fileName(), file.size(), file.isDir(), file.isSymLink(),
+            file.lastModified().toString("d/M/yyyy hh:m:s")));
       }
-      ++idx;
-    }
-    for (size_t rm : remove) {
-      list[rm] = nullptr;
-      list.erase(list.begin() + rm);
+      if (file.isDir()) {
+        list.emplace_back(FileObj::makeFileObj(
+            file.fileName(), file.size(), file.isDir(), file.isSymLink(),
+            file.lastModified().toString("d/M/yyyy hh:m:s")));
+      }
+    } else {
+      list.emplace_back(FileObj::makeFileObj(
+          file.fileName(), file.size(), file.isDir(), file.isSymLink(),
+          file.lastModified().toString("d/M/yyyy hh:m:s")));
     }
   }
+  Util::logging(QObject::tr("%1 %2").arg(Q_FUNC_INFO).arg(__LINE__));
+  mret.clear();
 
   return list;
 }
@@ -101,23 +93,25 @@ FileSystemAbs::FileSystemAbs(FileSystemAbs &&other) : FileSystemAbs(other) {
 bool FileSystemAbs::setPath(const QString &pth) {
   if (!isValidPath(pth)) return false;
 
+  Util::logging(QObject::tr("%1 %2 setpath: %3")
+                    .arg(Q_FUNC_INFO)
+                    .arg(__LINE__)
+                    .arg(pth));
   path = QDir::cleanPath(pth);
   refresh();
+  Util::logging(QObject::tr("%1 %2 setpath: %3")
+                    .arg(Q_FUNC_INFO)
+                    .arg(__LINE__)
+                    .arg(pth));
   return true;
 }
 
 void FileSystemAbs::refresh() {
-  for (auto file : files) {
-    if (file) file = nullptr;
-  }
   files.clear();
   files = getListDir();
 }
 
 void FileSystemAbs::makeClear() {
-  for (auto file : files) {
-    if (file) file = nullptr;
-  }
   files.clear();
   path = "";
 }
@@ -126,20 +120,23 @@ bool FileSystemAbs::cd(const QString &pth) {
   if (!isValidPath(path)) {
     return false;
   }
-  QStringList roots = MountStorageHandler::getAllRootMountedFS();
-  if (std::any_of(
-          roots.begin(), roots.end(),
-          [this](const QString &rootdir) { return this->path == rootdir; }) &&
+  auto roots = MountStorageHandler::getAllRootMountedFS();
+  if (std::any_of(roots.begin(), roots.end(),
+                  [this](const std::pair<QString, QString> &rootdir) {
+                    return this->path == rootdir.second;
+                  }) &&
       pth == "..") {
-    std::cout << "\nreached root dir can't simply cdUp again\n";
+    Util::logging(QObject::tr("%1 %2").arg(Q_FUNC_INFO).arg(__LINE__));
     return false;
   }
+  Util::logging(QObject::tr("%1 %2").arg(Q_FUNC_INFO).arg(__LINE__));
   auto mpath = QDir::cleanPath(path + "/" + pth);
   if (!isValidPath(mpath)) {
     return false;
   }
   path = mpath;
   refresh();
+  Util::logging(QObject::tr("%1 %2").arg(Q_FUNC_INFO).arg(__LINE__));
   return true;
 }
 
@@ -159,17 +156,14 @@ ListFiles FileSystemAbs::getFiles() const { return files; }
 QString FileSystemAbs::getPath() const { return path; }
 
 std::ostream &operator<<(std::ostream &os, const FileSystemAbs &list) {
-  os << "\nfolder list: \n";
+  os << "folder list: ";
   for (size_t x = 0; x < list.getFiles().size(); x += 1) {
-    if (list.getFiles().at((x))) {
-      os << list.getFiles().at(x)->basename.toStdString()
-         << " isdir: " << list.getFiles().at(x)->isdir << " exists "
-         << list.getFiles().at(x)->exists << " size "
-         << list.getFiles().at(x)->size.toStdString() << " last modified time "
-         << list.getFiles().at(x)->ltimef.toStdString() << " sym "
-         << list.getFiles().at(x)->issym << "\n";
-    }
+    os << list.getFiles().at(x).basename.toStdString()
+       << " isdir: " << list.getFiles().at(x).isdir << " size "
+       << list.getFiles().at(x).size.toStdString() << " last modified time "
+       << list.getFiles().at(x).ltimef.toStdString() << " sym "
+       << list.getFiles().at(x).issym << "";
   }
-  os << "\n";
+  os << "";
   return os;
 }

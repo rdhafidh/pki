@@ -39,9 +39,13 @@ SOURCES += \
     openfolderhandler.cpp  mountstoragehandler.cpp
 
 
+RESOURCES += pages/DecPage.qml pages/DoDecPage.qml pages/DoEncPage.qml pages/EncPage.qml \
+                pages/GroupBoxScroll.qml pages/KeygenGenerate.qml pages/KeygenPage.qml pages/OpenFolder.qml \
+                pages/PageLog.qml pages/PageLogInner.qml pages/ScrollablePage.qml pages/TextAreaScroll.qml
+
 RESOURCES += main.qml \
-                 $$files(images/*.png) \
-                $$files(pages/*.qml)
+                 $$files(images/*.png)
+
         
 VERSION = 1.0
 RC_ICONS =  key.ico 
@@ -60,3 +64,24 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \ 
     filesystemabs.h qmlappengine.h filemodeldata.h pkiqml.h z85.h openfolderhandler.h
  
+
+DISTFILES += \
+    android/AndroidManifest.xml \
+    android/gradle/wrapper/gradle-wrapper.jar \
+    android/gradlew \
+    android/res/values/libs.xml \
+    android/build.gradle \
+    android/gradle/wrapper/gradle-wrapper.properties \
+    android/gradlew.bat \
+    android/AndroidManifest.xml \
+    android/gradle/wrapper/gradle-wrapper.jar \
+    android/gradlew \
+    android/res/values/libs.xml \
+    android/build.gradle \
+    android/gradle/wrapper/gradle-wrapper.properties \
+    android/gradlew.bat
+
+contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
+    ANDROID_PACKAGE_SOURCE_DIR = \
+        $$PWD/android
+}

@@ -88,26 +88,31 @@ Item {
         id: folderDelegate
         Item {
             width: parent.width
-            height: 40
+            height: colitem.height +10
             Row {
                 spacing: 6
                 Image {
                     y: -5
                     source: isdirf ? "qrc:/images/ic_folder_open_black_48dp.png" : "qrc:/images/ic_insert_drive_file_black_48dp.png"
-                    sourceSize.width: 30
-                    sourceSize.height: 30
+                    sourceSize.width: 45
+                    sourceSize.height: 45
                 }
-                Text {
-                    text: namef
-                    width: 100
-                    elide: Text.ElideRight
-                }
-                Text {
-                    text: ltimef
-                }
-                Text {
-                    text: sizef
-                }
+                Column {
+                    id: colitem
+                    spacing: 5
+                    Text {
+                        width: 230
+                        text: namef 
+                        elide: Text.ElideRight
+                        font.pointSize: 12
+                    }
+                    Text {
+                        text: ltimef
+                    }
+                    Text {
+                        text: isdirf ? "": sizef
+                    }
+                } 
             }
             MouseArea {
                 anchors.fill: parent
@@ -148,7 +153,7 @@ Item {
             Button {
                 width: aksiFolder.availableWidth
                 text: "Pilih Drive"
-                onClicked: { 
+                onClicked: {
                     aksiFolder.close()
                     aksiDrive.open()
                 }
@@ -192,32 +197,32 @@ Item {
         modal: true
         focus: true
         title: "Pilih Drive"
-        x: (window.width - width) / 2
-        y: window.height / 13
-        width: Math.min(window.width, window.height) / 3 * 2
+        x: ((window.width - width) / 2) - 10
+        y: window.height / 6
+        contentWidth: driveColumn.width
         contentHeight: driveColumn.height
         ColumnLayout {
             id: driveColumn
-            spacing: 5
+            spacing: 3
             ComboBox {
                 id: driveBox
-                width: aksiDrive.availableWidth
-                model: folderHandler.getMountRootPaths()
+                model: folderHandler.getHumanLabelRootPaths()
+                Layout.alignment: Qt.AlignCenter
             }
             RowLayout {
-                spacing: 5
+                spacing: 3
                 Button {
                     text: "buka"
-                    Layout.fillWidth: true
                     onClicked: {
-                        if(folderModel.setPath(driveBox.currentText)){
+                        if (folderModel.setPath(
+                                    folderHandler.findMountRootPathsValueByHumanLabel(
+                                        driveBox.currentText))) {
                             folderpath.text = folderModel.path()
                         }
                         aksiDrive.close()
                     }
                 }
                 Button {
-                    Layout.fillWidth: true
                     text: "cancel"
                     onClicked: {
                         aksiDrive.close()
@@ -233,30 +238,39 @@ Item {
         modal: true
         focus: true
         title: "Buat Folder Baru Dialog"
-        x: (window.width - width) / 2
+        x: ((window.width - width) / 2) - 10
         y: window.height / 6
-        width: Math.min(window.width, window.height) / 3 * 2
+        contentWidth: mkdirCol.width
         contentHeight: mkdirCol.height
         Column {
             id: mkdirCol
-            spacing: 20
+            spacing: 10
             Label {
                 text: "Nama Folder"
             }
             TextField {
                 id: namaFolderBaru
             }
-            Button {
-                text: "Buat"
-                onClicked: {
-                    if (!folderModel.mkdir(namaFolderBaru.text)) {
+            Row {
+                spacing: 3
+                Button {
+                    text: "Buat"
+                    onClicked: {
+                        if (!folderModel.mkdir(namaFolderBaru.text)) {
+                            mkdirDialog.close()
+                            notifDialog.setMsgLabel("Galat membuat folder")
+                            notifDialog.open()
+                            return
+                        }
                         mkdirDialog.close()
-                        notifDialog.setMsgLabel("Galat membuat folder")
-                        notifDialog.open()
-                        return
+                        refresh()
                     }
-                    mkdirDialog.close()
-                    refresh()
+                }
+                Button {
+                    text: "Cancel"
+                    onClicked: {
+                        mkdirDialog.close()
+                    }
                 }
             }
         }

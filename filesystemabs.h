@@ -8,20 +8,18 @@
 #include <QtGlobal>
 #include <QStringList>
 
-struct FileObj {
-  ~FileObj();
+struct FileObj { 
   QString basename;
   bool isdir;    
   bool issym;
   QString size;
   QString ltimef;
-  static std::shared_ptr<FileObj> makeFileObj(const QString &bname,
-                                       qint64 size, bool isdir, bool issym, bool exists, const QString &ltimef);
-  bool exists; 
+  static FileObj makeFileObj(const QString &bname,
+                                       qint64 size, bool isdir, bool issym, const QString &ltimef); 
   static QString computeSize(const qint64 size) ;
 };
 
-typedef std::vector<std::shared_ptr<FileObj> > ListFiles;
+typedef std::vector<FileObj > ListFiles;
 
 class FileSystemAbs {
  QString path; 

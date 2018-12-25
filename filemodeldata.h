@@ -33,6 +33,9 @@ public:
     Q_INVOKABLE bool mkdir(const QString&fname);
     Q_INVOKABLE void setNameFilterKey();
     Q_INVOKABLE void clearNameFilter();
+    Q_INVOKABLE bool resetLog();
+    Q_INVOKABLE QByteArray readLog();
+    Q_INVOKABLE bool log(const QString &msg);
 };
 
 #endif // FILEMODELDATA_H

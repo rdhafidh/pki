@@ -7,7 +7,8 @@ import QtQuick.Window 2.2
 ApplicationWindow {
     id: window
     visible: true
-    width: (Qt.platform.os == "android" || Qt.platform.os == "ios") ? Screen.width : 600;
+    width: (Qt.platform.os == "android" ||
+        Qt.platform.os == "ios") ? Screen.width : 600
     height: 480
     title: qsTr("Demo PKI Kriptografi")
 
@@ -62,17 +63,24 @@ ApplicationWindow {
                     MenuItem {
                         text: "Pengaturan Backend"
                         onTriggered: {
-                            //adjust based on setting file 
-							cipherBackendDialog.adjustCipherDialog(settingApp.getValue("backend",cipherBackendDialog.currentBackend),
-							settingApp.getValue("algo",cipherBackendDialog.boringsslcipher)); 
+                            //adjust based on setting file
+                            cipherBackendDialog.adjustCipherDialog(
+                                settingApp.getValue(
+                                    "backend",
+                                    cipherBackendDialog.currentBackend),
+                                settingApp.getValue(
+                                    "algo",
+                                    cipherBackendDialog.boringsslcipher))
                             cipherBackendDialog.open()
+                            folderModel.log("pengaturan backend ")
                         }
                     }
                     MenuItem {
                         text: "About"
                         onTriggered: {
-                            notifDialog.setMsgLabel("Implementasi PKI Kriptografi\nDengan antar muka \nQml javascript dan logic c++.\nMetode= Berbagai metode.\nLibrary Backend= \nLibsodium git stable branch dan\nGoogle BoringSSL stock master branch.")
-                            notifDialog.open();
+                            notifDialog.setMsgLabel(
+                                "Implementasi PKI Kriptografi\nDengan antar muka \nQml javascript dan logic c++.\nMetode= Berbagai metode.\nLibrary Backend= \nLibsodium git stable branch dan\nGoogle BoringSSL master branch.")
+                            notifDialog.open()
                         }
                     }
                 }
@@ -107,13 +115,20 @@ ApplicationWindow {
 
             model: ListModel {
                 ListElement {
-                    title: "Keygen 2 Pair PKI";source: "qrc:/pages/KeygenPage.qml"
+                    title: "Keygen 2 Pair PKI"
+                    source: "qrc:/pages/KeygenPage.qml"
                 }
                 ListElement {
-                    title: "Enkripsi Pesan";source: "qrc:/pages/EncPage.qml"
+                    title: "Enkripsi Pesan"
+                    source: "qrc:/pages/EncPage.qml"
                 }
                 ListElement {
-                    title: "Dekripsi Pesan";source: "qrc:/pages/DecPage.qml"
+                    title: "Dekripsi Pesan"
+                    source: "qrc:/pages/DecPage.qml"
+                }
+                ListElement {
+                    title: "Informasi Logging Sistem"
+                    source: "qrc:/pages/PageLog.qml"
                 }
             }
 
@@ -159,7 +174,6 @@ ApplicationWindow {
         }
     }
 
-
     Dialog {
         id: notifDialog
 
@@ -188,7 +202,7 @@ ApplicationWindow {
         }
 
         function setMsgLabel(labelmsg) {
-            labelNotif.text = labelmsg;
+            labelNotif.text = labelmsg
         }
     }
 
@@ -198,9 +212,9 @@ ApplicationWindow {
         modal: true
         focus: true
         title: "Cipher Backend"
-        x: (window.width - width) / 2
+        x: ((window.width - width) / 2) - 10
         y: window.height / 6
-        width: Math.min(window.width, window.height) / 3 * 2
+        contentWidth: notifColCipher.width
         contentHeight: notifColCipher.height
         property
         var currentBackend: 0
@@ -209,65 +223,78 @@ ApplicationWindow {
 
         function adjustCipherDialog(backend_idx, cipher_idx) {
             if (backend_idx == 1) {
-                pilihBackend.currentIndex = 1;
-                pilihBackendBoringSSL.visible = true;
+                pilihBackend.currentIndex = 1
+                pilihBackendBoringSSL.visible = true
                 if (cipher_idx < 0 || cipher_idx >= 3) {
-                    pilihBackendBoringSSL.currentIndex = 1;
+                    pilihBackendBoringSSL.currentIndex = 1
                 } else {
-                    pilihBackendBoringSSL.currentIndex = cipher_idx;
+                    pilihBackendBoringSSL.currentIndex = cipher_idx
                 }
-                cipherBackendDialog.boringsslcipher = cipher_idx;
+                cipherBackendDialog.boringsslcipher = cipher_idx
             } else {
-                pilihBackendBoringSSL.visible = false; 
-                pilihBackend.currentIndex = 0;
+                pilihBackendBoringSSL.visible = false
+                pilihBackend.currentIndex = 0
             }
-			cipherBackendDialog.currentBackend = backend_idx;
+            cipherBackendDialog.currentBackend = backend_idx
         }
-        Column {
+        ColumnLayout {
             id: notifColCipher
             spacing: 20
             ComboBox {
                 id: pilihBackend
+                Layout.fillWidth: true
                 model: ["Libsodium(xsalsa20 poly1305)", "Boringssl"]
-				onActivated:{
-					if(index==1){
-						pilihBackendBoringSSL.visible=true;
-					}else{
-						pilihBackendBoringSSL.visible=false;
-					}
-				}
+                onActivated: {
+                    if (index == 1) {
+                        pilihBackendBoringSSL.visible = true
+                    } else {
+                        pilihBackendBoringSSL.visible = false
+                    }
+                }
             }
             ComboBox {
                 id: pilihBackendBoringSSL
-				visible: false
+                Layout.fillWidth: true
+                visible: false
                 model: ["aes 256 gcm", "xchacha20 poly1305", "aes 256 gcm siv"]
             }
 
-            Button {
-                text: "Simpan"
-                onClicked: {
-                    cipherBackendDialog.currentBackend = pilihBackend.currentIndex;
-                    if (cipherBackendDialog.currentBackend == 1) {
-                        cipherBackendDialog.boringsslcipher = pilihBackendBoringSSL.currentIndex;
+            RowLayout {
+                spacing: 4
+                Button {
+                    text: "Simpan"
+                    onClicked: {
+                        cipherBackendDialog.currentBackend = pilihBackend.currentIndex
+                        if (cipherBackendDialog.currentBackend == 1) {
+                            cipherBackendDialog.boringsslcipher = pilihBackendBoringSSL.currentIndex
+                        }
+                        settingApp.setValue("backend",
+                            cipherBackendDialog.currentBackend)
+                        settingApp.setValue("algo",
+                            cipherBackendDialog.boringsslcipher)
+                        if (stackView.depth == 2) {
+                            stackView.pop()
+                            titleLabel.text = window.title
+                        }
+                        cipherBackendDialog.close()
                     }
-					settingApp.setValue("backend",cipherBackendDialog.currentBackend);
-					settingApp.setValue("algo",cipherBackendDialog.boringsslcipher);  
-					if(stackView.depth==2){
-						stackView.pop();
-						titleLabel.text=window.title
-					}
-                    cipherBackendDialog.close()
+                }
+
+                Button {
+                    text: "cancel"
+                    onClicked: {
+                        cipherBackendDialog.close()
+                    }
                 }
             }
         }
 
         function getCurrentBackend() {
-            return cipherBackendDialog.currentBackend;
+            return cipherBackendDialog.currentBackend
         }
 
         function getCurrentBoringsslCipher() {
-            return cipherBackendDialog.boringsslcipher;
+            return cipherBackendDialog.boringsslcipher
         }
-    } 
-
+    }
 }
