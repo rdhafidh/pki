@@ -55,9 +55,6 @@ bool BoringsslPKI::encryptqt(const QByteArray &msg, const QString &bob_pub_file,
     return false;
   }
   if (shared.size() != EVP_AEAD_key_length(ciphers.at(currentAeadIndex).aead)) {
-    std::cout << "\nfound ciphers: " << ciphers.at(currentAeadIndex).name
-              << " not 32 bytes key length properties: "
-              << EVP_AEAD_key_length(ciphers.at(currentAeadIndex).aead) << "\n";
     return false;
   }
   std::string random;
@@ -66,7 +63,7 @@ bool BoringsslPKI::encryptqt(const QByteArray &msg, const QString &bob_pub_file,
                 DEFAULT_KDF_INFO_LENGTH);
   if (!RandWrapper::instance()->makeRandom((uint8_t *)random.data(),
                                            random.size())) {
-    std::cout << "\nmake random key failed ..\n";
+    Util::logging("make random key failed ..");
     return false;
   }
   std::string key;
@@ -87,7 +84,7 @@ bool BoringsslPKI::encryptqt(const QByteArray &msg, const QString &bob_pub_file,
           .c_str(),
       DEFAULT_KDF_INFO_LENGTH);
   if (ret == 0) {
-    std::cout << "\nhkdf failed";
+    Util::logging("hkdf enc boringssl failed");
     return false;
   }
 
@@ -96,7 +93,7 @@ bool BoringsslPKI::encryptqt(const QByteArray &msg, const QString &bob_pub_file,
   ret = EVP_AEAD_CTX_init(ctx.get(), ciphers.at(currentAeadIndex).aead,
                           (const uint8_t *)key.c_str(), key.size(), 0, nullptr);
   if (ret == 0) {
-    std::cout << "\nEVP_AEAD_CTX_init failed";
+    Util::logging("EVP_AEAD_CTX_init enc boringssl failed");
     return false;
   }
   std::string ct;
@@ -116,7 +113,7 @@ bool BoringsslPKI::encryptqt(const QByteArray &msg, const QString &bob_pub_file,
           .c_str(),
       DEFAULT_AD_LENGTH);
   if (ret == 0) {
-    std::cout << "\nseal failed\n";
+    Util::logging("seal boringssl failed");
     return false;
   }
   ct += random;
@@ -147,7 +144,7 @@ bool BoringsslPKI::decryptqt(const QByteArray &ciphertext,
   }
   std::string plain = Util::decode85(ciphertext.toStdString());
   if (plain.size() == 0) {
-    std::cout << "\ndecode85 failed";
+    Util::logging("decode85 dec boringssl failed");
     return false;
   }
   std::string random = plain.substr(
@@ -177,7 +174,7 @@ bool BoringsslPKI::decryptqt(const QByteArray &ciphertext,
           .c_str(),
       DEFAULT_KDF_INFO_LENGTH);
   if (ret == 0) {
-    std::cout << "\nhkdf failed";
+    Util::logging("hkdf dec failed");
     return false;
   }
 
@@ -185,7 +182,7 @@ bool BoringsslPKI::decryptqt(const QByteArray &ciphertext,
   ret = EVP_AEAD_CTX_init(ctx.get(), ciphers.at(currentAeadIndex).aead,
                           (const uint8_t *)key.c_str(), key.size(), 0, nullptr);
   if (ret == 0) {
-    std::cout << "\nEVP_AEAD_CTX_init failed";
+    Util::logging("EVP_AEAD_CTX_init dec boringssl failed");
     return false;
   }
   std::string dt;
@@ -212,7 +209,7 @@ bool BoringsslPKI::decryptqt(const QByteArray &ciphertext,
           .c_str(),
       DEFAULT_AD_LENGTH);
   if (ret == 0) {
-    std::cout << "\nopen failed\n";
+    Util::logging("open failed");
     return false;
   }
   out = QByteArray::fromStdString(dt);

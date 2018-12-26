@@ -1,12 +1,12 @@
 #include "util.h"
 #include <z85.h>
+#include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
 #include <QStandardPaths>
 #include <QtGlobal>
 #include <cstdio>
 #include <iostream>
-#include <QDateTime>
 
 bool Util::readFile(const QString &name, std::string &buffer) {
   QFile fn(name);
@@ -46,7 +46,7 @@ std::string Util::decode85(const std::string &buffer) {
   std::string ret;
   size_t len = Z85_decode_with_padding_bound(buffer.c_str(), buffer.size());
   if (len == 0) {
-    std::cout << "\nZ85_decode_with_padding_bound: " << len << "\n";
+    Util::logging("Z85_decode_with_padding_bound failed");
     return "";
   }
 
@@ -71,10 +71,11 @@ bool Util::logging(const QString &buffer) {
   if (!fl.open(QIODevice::WriteOnly | QIODevice::Append)) {
     return false;
   }
-  QDateTime tm=QDateTime::currentDateTime ();
-  std::string buf=tm.toString ("d/M/yyyy hh:m:s").toStdString ()+" : "+buffer.toStdString ();
-  buf.insert (0,"\n");
-  buf+="\n";
+  QDateTime tm = QDateTime::currentDateTime();
+  std::string buf = tm.toString("d/M/yyyy hh:m:s").toStdString() + " : " +
+                    buffer.toStdString();
+  buf.insert(0, "\n");
+  buf += "\n";
   fl.write(buf.c_str(), buf.size());
   fl.close();
   return true;
@@ -105,5 +106,5 @@ bool Util::resetLog() {
   pathfile = pth + "/";
 #endif
   pathfile += "logging.log";
-  return std::remove(pathfile.toStdString().c_str())==0;
+  return std::remove(pathfile.toStdString().c_str()) == 0;
 }

@@ -3,7 +3,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.1
 import QtQuick.Window 2.2
-
+import "pages"
 ApplicationWindow {
     id: window
     visible: true
@@ -141,36 +141,26 @@ ApplicationWindow {
         anchors.fill: parent
 
         initialItem: Pane {
-            id: pane
+            id: pane 
+            TextAreaScroll{
+                id: tex 
+                clip: true
+                width: window.width/2
+                height: 100
+                text: "Demo app enkripsi dengan pertukaran kunci X25519  dan berbagai macam metode AEAD Enkripsi & Dekripsi" 
+                readOnly: true 
+                x:window.width/2-(width/1.9)
+            }
 
             Image {
-                id: logo
-                width: pane.availableWidth / 2
-                height: pane.availableHeight / 2
-                anchors.centerIn: parent
-                anchors.verticalCenterOffset: -50
+                id: logo 
+                anchors.top: tex.bottom 
+                sourceSize.width: window.width/2 
+                sourceSize.height: window.height/2
                 fillMode: Image.PreserveAspectFit
-                source: "images/qt-logo.png"
-            }
-
-            Label {
-                text: "Qt Quick Controls 2 provides a set of controls that can be used to build complete interfaces in Qt Quick."
-                anchors.margins: 20
-                anchors.top: logo.bottom
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.bottom: arrow.top
-                horizontalAlignment: Label.AlignHCenter
-                verticalAlignment: Label.AlignVCenter
-                wrapMode: Label.Wrap
-            }
-
-            Image {
-                id: arrow
-                source: "images/arrow.png"
-                anchors.left: parent.left
-                anchors.bottom: parent.bottom
-            }
+                source: "images/banner.png"  
+                x:window.width/2-(width/1.9)
+            }  
         }
     }
 
@@ -184,17 +174,18 @@ ApplicationWindow {
         y: window.height / 6
         width: Math.min(window.width, window.height) / 3 * 2
         contentHeight: notifCol.height
-        Column {
+        ColumnLayout {
             id: notifCol
             spacing: 20
             Label {
                 id: labelNotif
                 text: ""
                 wrapMode: Label.Wrap
-                font.pixelSize: 12
+                font.pixelSize: 12 
+                Layout.alignment: Qt.AlignHCenter
             }
             Button {
-                text: "Tutup"
+               text: "Tutup"  
                 onClicked: {
                     notifDialog.close()
                 }

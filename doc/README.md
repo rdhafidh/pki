@@ -7,6 +7,9 @@ Aead Cihpher dari [boringSSL](https://github.com/rdhafidh/pki/blob/master/boring
 2. xchacha20_poly1305
 3. aes_256_gcm_siv
 
+### Skema app
+![](https://raw.githubusercontent.com/rdhafidh/pki/master/images/banner.png)
+
 ### Proses Enkripsi
 ![](https://raw.githubusercontent.com/rdhafidh/pki/master/doc/enc.png)
 

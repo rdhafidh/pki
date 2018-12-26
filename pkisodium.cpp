@@ -48,7 +48,7 @@ bool PKISodium::keygenTests() {
     return false;
   }
   if (o_a_priv != ret.alice_priv) {
-    std::cout << "\n read test alice priv galat\n";
+    Util::logging(" read test alice priv galat");
     return false;
   }
   std::string o_a_pub = "";
@@ -56,7 +56,7 @@ bool PKISodium::keygenTests() {
     return false;
   }
   if (o_a_pub != ret.alice_pub) {
-    std::cout << "\n read test alice pub galat\n";
+    Util::logging("read test alice pub galat");
     return false;
   }
   std::string o_b_priv = "";
@@ -64,7 +64,7 @@ bool PKISodium::keygenTests() {
     return false;
   }
   if (o_b_priv != ret.bob_priv) {
-    std::cout << "\n read test bob priv galat\n";
+    Util::logging("read test bob priv galat");
     return false;
   }
   std::string o_b_pub = "";
@@ -72,7 +72,7 @@ bool PKISodium::keygenTests() {
     return false;
   }
   if (o_b_pub != ret.bob_pub) {
-    std::cout << "\n read test bob pub galat\n";
+    Util::logging(" read test bob pub galat");
     return false;
   }
   return true;
@@ -155,7 +155,7 @@ bool PKISodium::decryptqt(const QByteArray &ciphertext,
     return false;
   }
   if (!decrypt(dt, decode, pub, priv)) {
-    std::cout << "\ndec failed\n";
+    Util::logging("dec sodium failed");
     return false;
   }
   out = QByteArray::fromStdString(dt);
